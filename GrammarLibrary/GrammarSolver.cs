@@ -378,6 +378,10 @@ public class GrammarSolver
 						toAdd.Add(valueCopy);
                     }
 				}
+				if (key == StartPosition && value == "")
+				{
+					toAdd.Add("");
+				}
 			}
 			foreach (var item in toAdd)
 			{
