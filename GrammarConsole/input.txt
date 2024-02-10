@@ -1,93 +1,10 @@
-﻿# Начальная позиция
-start: S
+﻿# После "start:" нужно записать символ, с которого начинается составление цепочек
+# Дальше нужно описать правила грамматики
+# Для обозначения пустого слова использовать "_"
 
-# Правила
-S: AAA B
-A: aA B
-B: _
-
-
-
-#S: bFb GB
-#A: Da baS bD bb
-#B: _ DF EB
-#C: b a CS aA
-#D: SD aD DbC DaFC
-#E: BEE B ADb
-#F: AE bGG BG
-#G: ba AB EE DD
-
-
-#S: bZ GB
-#A: Da bY bD bb
-#B: _ DF EB
-#C: b a CS aA
-#D: SD aD DW DX
-#E: AT B BU
-#F: AE bR BG
-#G: ba AB EE DD
-#Z: Fb
-#Y: aS
-#X: bC
-#W: aV
-#V: FC
-#U: EE
-#T: Db
-#R: GG
-
-
-#S: bZ GB B G
-#A: Da bY bD bb
-#B: DF EB D E
-#C: b a CS aA
-#D: SD aD DW DX
-#E: AT B BU U
-#F: AE bR BG A b G B
-#G: ba AB EE DD A E
-#Z: Fb b
-#Y: aS a
-#X: bC
-#W: aV
-#V: FC C
-#U: EE E
-#T: Db
-#R: GG G
-#$: S _
-
-
-#S: bZ GB ba AB EE DD AT BU DF EB SD aD DW DX Da bY bD bb
-#A: Da bY bD bb
-#B: AT DF EB BU EE SD aD DW DX
-#C: b a CS aA
-#D: SD aD DW DX
-#E: AT BU EE DF EB SD aD DW DX
-#F: AE bR BG b DF EB AT BU EE SD aD DW DX ba AB DD Da bY bD bb
-#G: ba AB EE DD AT BU DF EB SD aD DW DX Da bY bD bb
-#Z: Fb b
-#Y: aS a
-#X: bC
-#W: aV
-#V: FC b a CS aA
-#U: EE AT BU DF EB SD aD DW DX
-#T: Db
-#R: GG ba AB EE DD AT BU DF EB SD aD DW DX Da bY bD bb
-#I: _ bZ GB ba AB EE DD AT BU DF EB SD aD DW DX Da bY bD bb
-
-
-#S: bZ ba bY bb
-#F: bR b ba bY bb
-#G: ba bY bb
-#Z: Fb b
-#Y: aS a
-#R: GG ba bY bb
-#I: _ bZ ba bY bb
-
-#S: QZ QP QY QQ
-#F: QQ b QY QP QR
-#Q: b
-#Z: FQ b
-#Y: PS a
-#G: QP QY QQ
-#P: a
-#R: GG QQ QY QP
-#I: _ QQ QY QP QZ
+# Пример
+start: S	# Начинаем с "S"
+S: TaS U	# Из "S" можно получить "Tas" или U
+Ta: aaT		# Из "Ta" можно получить "aaT"
+TU: U		# Из "TU" можно получить "U"
+U: a		# Из "U" можно получить "a"

@@ -9,7 +9,7 @@ public class GrammarSolver
     public Dictionary<string, HashSet<string>> Rules { get; private set; } = new Dictionary<string, HashSet<string>>();
 	public bool PrintLines { get; private set; } = true;
 
-    public HashSet<string> ResultWords { get; private set; } = new HashSet<string>();
+    public HashSet<string> ResultWords { get; set; } = new HashSet<string>();
     public HashSet<string> CurrWords { get; private set; } = new HashSet<string>();
     public HashSet<string> NextWords { get; private set; } = new HashSet<string>();
 
@@ -72,7 +72,12 @@ public class GrammarSolver
                 if (!canReplace && word.All(char.IsLower) && !ResultWords.Contains(word))
                 {
 					if (PrintLines)
-						Console.WriteLine($"{CountLetters(word)}: {word}");
+					{
+						if (word == "")
+                            Console.WriteLine("Пустое слово (эпсилон)");
+						else
+							Console.WriteLine($"{CountLetters(word)}: {word}");
+					}
                     ResultWords.Add(word);
                 }
             }
@@ -88,6 +93,7 @@ public class GrammarSolver
         {
             string[] arr = lineWithComments.Split('#');
 			string line = arr.Length == 0 ? "" : arr[0];
+			line = line.Trim();
 
             if (line.Trim() == "")
                 continue;
@@ -136,7 +142,7 @@ public class GrammarSolver
                     }
 					foreach (string word in words)
 					{
-                        Rules[parts[0]].Add(word.Replace("_", ""));
+                        Rules[parts[0]].Add(word.Trim().Replace("_", ""));
 					}
 				}
 				else
@@ -175,7 +181,7 @@ public class GrammarSolver
 
 	public override string ToString()
 	{
-		string res = "";
+		string res = "start: " + StartPosition + "\n";
 		foreach (string key in Rules.Keys)
 		{
 			HashSet<string> values = Rules[key];
