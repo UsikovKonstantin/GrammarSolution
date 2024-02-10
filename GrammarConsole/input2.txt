@@ -1,0 +1,3 @@
+start: I
+A: aA a
+I: _ AAA AA aA a

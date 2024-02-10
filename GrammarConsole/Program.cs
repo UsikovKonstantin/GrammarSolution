@@ -1,10 +1,10 @@
 ﻿using GrammarLibrary;
 
 // Выберите нужное действие
-// MakeWords - составление слов по известным правилам (из input.txt)
+// MakeWords - составление слов по известным правилам (из input.txt, для отмены можно нажать Enter)
 // SimplifyGrammar - приведение грамматики к приведенной форме (из input.txt) 
 // ConvertToChomskyNormalForm - приведение грамматики к нормальной форме Хомского (из input.txt)  
-// CompareGrammars - сравнение двух грамматик (из input.txt и input2.txt)
+// CompareGrammars - сравнение двух грамматик (из input.txt и input2.txt, нужно будет подождать 10с)
 ActionType actionType = ActionType.MakeWords;
 
 
