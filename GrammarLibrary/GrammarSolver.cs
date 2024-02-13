@@ -13,6 +13,10 @@ public class GrammarSolver
     public HashSet<string> CurrWords { get; private set; } = new HashSet<string>();
     public HashSet<string> NextWords { get; private set; } = new HashSet<string>();
 
+	public List<List<string>> ResultChains { get; set; } = new List<List<string>>();
+    public List<List<string>> CurrChains { get; private set; } = new List<List<string>>();
+    public List<List<string>> NextChains { get; private set; } = new List<List<string>>();
+
 	public HashSet<char> NonTerminals { get; set; } = new HashSet<char>();
 	public HashSet<char> UnusedNonTerminals { get; set; } = new HashSet<char>() { 'Z', 'Y', 'X', 'W', 'V', 'U', 'T', 'S', 'R', 'Q', 'P', 'O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A' };
 	#endregion
@@ -43,7 +47,7 @@ public class GrammarSolver
 	#endregion
 
 	#region Методы
-	public void Solve(CancellationToken cancellationToken)
+	public void MakeWords(CancellationToken cancellationToken)
     {
 		CurrWords.Add(StartPosition);
 		while (true) 
@@ -87,7 +91,59 @@ public class GrammarSolver
         }
     }
 
-    private void ParseInputLines(string[] lines) 
+	public void MakeWordsDetailed(CancellationToken cancellationToken)
+	{
+		CurrChains.Add(new List<string>() { StartPosition });
+		while (true)
+		{
+			if (CurrChains.Count == 0)
+				break;
+
+			foreach (List<string> chain in CurrChains)
+			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
+
+				string word = chain[chain.Count - 1];
+
+				bool canReplace = false;
+				foreach (string ruleString in Rules.Keys)
+				{
+					int index = word.IndexOf(ruleString);
+					if (index != -1)
+					{
+						foreach (string replaceWith in Rules[ruleString])
+						{
+							List<string> nextChain = new List<string>(chain);
+							nextChain.Add(word.Remove(index, ruleString.Length).Insert(index, replaceWith));	
+							NextChains.Add(nextChain);
+							canReplace = true;
+						}
+					}
+				}
+				if (!canReplace && word.All(char.IsLower) && !ResultWords.Contains(word))
+				{
+					if (PrintLines)
+					{
+						for (int i = 0; i < chain.Count - 1; i++)
+						{
+							Console.Write($"{(chain[i] == "" ? "_" : chain[i])} => ");
+						}
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.WriteLine(chain[chain.Count - 1] == "" ? "_" : chain[chain.Count - 1]);
+						Console.ResetColor();
+					}
+					ResultChains.Add(chain);
+					ResultWords.Add(word);
+				}
+			}
+
+			CurrChains = new List<List<string>>(NextChains);
+			NextChains = new List<List<string>>();
+		}
+	}
+
+	private void ParseInputLines(string[] lines) 
     {
         foreach (string lineWithComments in lines)
         {

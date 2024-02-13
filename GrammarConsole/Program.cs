@@ -2,6 +2,7 @@
 
 // Выберите нужное действие
 // MakeWords - составление слов по известным правилам (из input.txt, для отмены можно нажать Enter)
+// MakeWordsDetailed - составление слов по известным правилам с полным процессом составления цепочек (из input.txt, для отмены можно нажать Enter)
 // SimplifyGrammar - приведение грамматики к приведенной форме (из input.txt) 
 // ConvertToChomskyNormalForm - приведение грамматики к нормальной форме Хомского (из input.txt)  
 // CompareGrammars - сравнение двух грамматик (из input.txt и input2.txt, нужно будет подождать 10с)
@@ -14,10 +15,24 @@ if (actionType == ActionType.MakeWords)
 	Console.WriteLine("Нажмите Enter для отмены...");
 	Console.WriteLine("Найденные слова");
 	CancellationTokenSource cts = new CancellationTokenSource();
-	Task solverTask = Task.Run(() => solver.Solve(cts.Token));
+	Task solverTask = Task.Run(() => solver.MakeWords(cts.Token));
 	Task consoleTask = Task.Run(() =>
 	{
         Console.ReadLine();
+		cts.Cancel();
+	});
+	await solverTask;
+}
+else if (actionType == ActionType.MakeWordsDetailed)
+{
+	GrammarSolver solver = new GrammarSolver("input.txt");
+	Console.WriteLine("Нажмите Enter для отмены...");
+	Console.WriteLine("Найденные цепочки");
+	CancellationTokenSource cts = new CancellationTokenSource();
+	Task solverTask = Task.Run(() => solver.MakeWordsDetailed(cts.Token));
+	Task consoleTask = Task.Run(() =>
+	{
+		Console.ReadLine();
 		cts.Cancel();
 	});
 	await solverTask;
@@ -83,8 +98,8 @@ else if (actionType == ActionType.CompareGrammars)
 	GrammarSolver solver1 = new GrammarSolver("input.txt", false);
 	GrammarSolver solver2 = new GrammarSolver("input2.txt", false);
 	CancellationTokenSource cts = new CancellationTokenSource();
-	Task solverTask = Task.Run(() => solver1.Solve(cts.Token));
-	Task solverTask2 = Task.Run(() => solver2.Solve(cts.Token));
+	Task solverTask = Task.Run(() => solver1.MakeWords(cts.Token));
+	Task solverTask2 = Task.Run(() => solver2.MakeWords(cts.Token));
 	Thread.Sleep(10000);
 	cts.Cancel();
 	Console.WriteLine("Первая грамматика: за 10с найдено " + solver1.ResultWords.Count + " слов");
