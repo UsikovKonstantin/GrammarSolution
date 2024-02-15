@@ -6,7 +6,7 @@
 // SimplifyGrammar - приведение грамматики к приведенной форме (из input.txt) 
 // ConvertToChomskyNormalForm - приведение грамматики к нормальной форме Хомского (из input.txt)  
 // CompareGrammars - сравнение двух грамматик (из input.txt и input2.txt, нужно будет подождать 10с)
-ActionType actionType = ActionType.MakeWords;
+ActionType actionType = ActionType.ConvertToChomskyNormalForm;
 
 
 if (actionType == ActionType.MakeWords)
@@ -40,24 +40,13 @@ else if (actionType == ActionType.MakeWordsDetailed)
 else if (actionType == ActionType.SimplifyGrammar)
 {
 	GrammarSolver solver = new GrammarSolver("input.txt");
-	Console.WriteLine("Начальное состояние");
+	Console.WriteLine("НАЧАЛЬНОЕ СОСТОЯНИЕ");
 	Console.WriteLine(solver.ToString());
 
 	solver.RemoveEmptyRules4();
-	Console.WriteLine("После удаления пустых правил");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveChainRules5();
-	Console.WriteLine("После удаления цепных правил");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveNonGenerativeCharacters1();
-	Console.WriteLine("После удаления непорождающих символов");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveUnreachableCharacters2();
-	Console.WriteLine("После удаления недостижимых символов");
-	Console.WriteLine(solver.ToString());
 
 	File.WriteAllText("..\\..\\..\\input2.txt", solver.ToString());
 }
@@ -68,28 +57,11 @@ else if (actionType == ActionType.ConvertToChomskyNormalForm)
     Console.WriteLine(solver.ToString());
 
 	solver.RemoveLongRules6();
-	Console.WriteLine("После удаления длинных правил");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveEmptyRules4();
-	Console.WriteLine("После удаления пустых правил");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveChainRules5();
-	Console.WriteLine("После удаления цепных правил");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveNonGenerativeCharacters1();
-	Console.WriteLine("После удаления непорождающих символов");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveUnreachableCharacters2();
-	Console.WriteLine("После удаления недостижимых символов");
-	Console.WriteLine(solver.ToString());
-
 	solver.RemoveMultipleTerminals7();
-	Console.WriteLine("После избавления от ситуаций, когда в правиле встречаются несколько терминалов");
-	Console.WriteLine(solver.ToString());
 
 	File.WriteAllText("..\\..\\..\\input2.txt", solver.ToString());
 }

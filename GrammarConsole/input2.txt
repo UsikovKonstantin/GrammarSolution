@@ -1,3 +1,9 @@
 start: I
-A: aA a
-I: _ AAA AA aA a
+S: FZ b RY a FT YS YR AY
+A: b RY a FT YS YR AY
+F: RY FT b YS YR a
+T: YR
+Z: AY a
+Y: a
+R: b
+I: _ FZ b RY a FT YS YR AY
