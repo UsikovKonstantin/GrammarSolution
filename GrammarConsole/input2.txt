@@ -1,2 +1,5 @@
 start: I
-I: _ b a c
+Y: a
+A: YA a
+Z: AA YA a
+I: _ AZ YA a AA
