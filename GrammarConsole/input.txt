@@ -9,12 +9,9 @@
 # B: _		# Из "B" можно получить пустое слово
 
 start: S
-S: EE DF FAa b
-A: FD b Aa
-B: aS bDa CC
-C: CS aDE FCE
-D: _ DAE DD CF
-E: EA DC GEb
-F: _ Fab B b
-G: b FB SS aA
+S: A B
+A: C D
+B: D E
+C: S a c _
+D: S b
 

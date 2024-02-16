@@ -318,7 +318,7 @@ public class GrammarSolver
             Console.WriteLine();
         }
 
-		Console.WriteLine("Добавим новые правила");
+		bool addedRule = false;
         foreach (string key in Rules.Keys)
 		{
 			Dictionary<string, HashSet<string>> toAdd = new Dictionary<string, HashSet<string>>();
@@ -386,6 +386,11 @@ public class GrammarSolver
 						{
 							if (vals.Count > 0 && !added && !Rules[key].Contains(item))
 							{
+								if (!addedRule)
+								{
+									Console.WriteLine("Добавим новые правила");
+									addedRule = true;
+								}
 								Console.ForegroundColor = ConsoleColor.Green;
 								Console.Write($"{key}: ");
 								Console.ResetColor();
@@ -393,6 +398,11 @@ public class GrammarSolver
 							}
 							if (!Rules[key].Contains(item))
 							{
+								if (!addedRule)
+								{
+									Console.WriteLine("Добавим новые правила");
+									addedRule = true;
+								}
 								Console.ForegroundColor = ConsoleColor.Green;
 								Console.Write(item + " ");
 								Console.ResetColor();
@@ -408,6 +418,11 @@ public class GrammarSolver
 
 		if (addStartEmptyRule)
 		{
+			if (!addedRule)
+			{
+				Console.WriteLine("Добавим новые правила");
+				addedRule = true;
+			}
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.Write($"I: _ {StartPosition} ");
 			Console.ResetColor();
@@ -524,12 +539,18 @@ public class GrammarSolver
 						{
 							if (!rulesToAdd[(key.ToString(), value)].Contains(rule))
 							{
-								rulesToAdd[(key.ToString(), value)].Add(rule);
+								if (key.ToString() != rule)
+								{
+									rulesToAdd[(key.ToString(), value)].Add(rule);
+								}
 							}
 						}
 						else
 						{
-							rulesToAdd[(key.ToString(), value)] = new List<string>() { rule };
+							if (key.ToString() != rule)
+							{
+								rulesToAdd[(key.ToString(), value)] = new List<string>() { rule };
+							}
 						}
 					}
 				}
@@ -597,7 +618,8 @@ public class GrammarSolver
 		Console.WriteLine("УСТРАНЕНИЕ ДЛИННЫХ ПРАВИЛ");
 
 		bool contains = false;
-        List<List<string>> rulesToAdd = new List<List<string>>();
+        Dictionary<string, List<string>> rulesToAdd = new Dictionary<string, List<string>>();
+		Dictionary<string, char> asso = new Dictionary<string, char>();
 		foreach (string key in Rules.Keys)
 		{
 			HashSet<string> values = Rules[key];
@@ -625,9 +647,46 @@ public class GrammarSolver
 
 					string prev = key;
 					char curr = UnusedNonTerminals.First();
+					string need = value;
+					bool found = false;
 					for (int i = 0; i < chars.Length - 1; i++)
 					{
-						rulesToAdd.Add(new List<string>() { prev, chars[i] + curr });
+						need = need.Substring(1, need.Length - 1);
+						string kk = "";
+						foreach (string k in Rules.Keys)
+						{
+							HashSet<string> vals = Rules[k];
+							if (vals.Count == 1 && vals.First() == need)
+							{
+								kk = k;
+								break;
+							}
+						}
+						if (asso.ContainsKey(need))
+						{
+							kk = asso[need].ToString();
+						}
+
+						if (kk != "")
+						{
+							if (!rulesToAdd.ContainsKey(prev))
+								rulesToAdd[prev] = new List<string>() { chars[i] + kk };
+							else
+								rulesToAdd[prev].Add(chars[i] + kk);
+
+							Console.ForegroundColor = ConsoleColor.Green;
+							Console.Write($"{prev}: {chars[i] + kk}  ");
+							Console.ResetColor();
+							found = true;
+							break;
+						}
+
+						if (!rulesToAdd.ContainsKey(prev))
+							rulesToAdd[prev] = new List<string>() { chars[i] + curr };
+						else
+							rulesToAdd[prev].Add(chars[i] + curr);
+
+						asso[need] = curr;
 						Console.ForegroundColor = ConsoleColor.Green;
 						Console.Write($"{prev}: {chars[i] + curr}  ");
 						Console.ResetColor();
@@ -637,10 +696,21 @@ public class GrammarSolver
 						curr = UnusedNonTerminals.First();
 					}
 
-					rulesToAdd.Add(new List<string>() { prev, chars[chars.Length - 1] });
-					Console.ForegroundColor = ConsoleColor.Green;
-					Console.WriteLine($"{prev}: {chars[chars.Length - 1]}");
-					Console.ResetColor();
+					if (!found)
+					{
+						if (!rulesToAdd.ContainsKey(prev))
+							rulesToAdd[prev] = new List<string>() { chars[chars.Length - 1] };
+						else
+							rulesToAdd[prev].Add(chars[chars.Length - 1]);
+
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.WriteLine($"{prev}: {chars[chars.Length - 1]}");
+						Console.ResetColor();
+					}
+					else
+					{
+						Console.WriteLine();
+					}
 				}
 			}
 		}
@@ -651,15 +721,19 @@ public class GrammarSolver
 			return;
 		}
 
-		foreach (var ruleParts in rulesToAdd)
+		foreach (string key in rulesToAdd.Keys)
 		{
-			if (!Rules.ContainsKey(ruleParts[0]))
+			var values = rulesToAdd[key];
+			foreach (var item in values)
 			{
-				Rules[ruleParts[0]] = new HashSet<string>() { ruleParts[1] };
-			}
-			else
-			{
-				Rules[ruleParts[0]].Add(ruleParts[1]);
+				if (!Rules.ContainsKey(key))
+				{
+					Rules[key] = new HashSet<string>() { item };
+				}
+				else
+				{
+					Rules[key].Add(item);
+				}
 			}
 		}
 
