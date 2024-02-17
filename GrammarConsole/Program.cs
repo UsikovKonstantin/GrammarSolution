@@ -6,12 +6,12 @@
 // SimplifyGrammar - приведение грамматики к приведенной форме (из input.txt) 
 // ConvertToChomskyNormalForm - приведение грамматики к нормальной форме Хомского (из input.txt)  
 // CompareGrammars - сравнение двух грамматик (из input.txt и input2.txt, нужно будет подождать 10с)
-ActionType actionType = ActionType.ConvertToChomskyNormalForm;
+ActionType actionType = ActionType.SimplifyGrammar;
 
 
 if (actionType == ActionType.MakeWords)
 {
-	GrammarSolver solver = new GrammarSolver("input.txt");
+	GrammarSolver solver = new GrammarSolver("input.txt", true, int.MaxValue);
 	Console.WriteLine("Нажмите Enter для отмены...");
 	Console.WriteLine("Найденные слова");
 	CancellationTokenSource cts = new CancellationTokenSource();
@@ -25,7 +25,7 @@ if (actionType == ActionType.MakeWords)
 }
 else if (actionType == ActionType.MakeWordsDetailed)
 {
-	GrammarSolver solver = new GrammarSolver("input.txt");
+	GrammarSolver solver = new GrammarSolver("input.txt", true, int.MaxValue);
 	Console.WriteLine("Нажмите Enter для отмены...");
 	Console.WriteLine("Найденные цепочки");
 	CancellationTokenSource cts = new CancellationTokenSource();
@@ -67,8 +67,8 @@ else if (actionType == ActionType.ConvertToChomskyNormalForm)
 }
 else if (actionType == ActionType.CompareGrammars)
 {
-	GrammarSolver solver1 = new GrammarSolver("input.txt", false);
-	GrammarSolver solver2 = new GrammarSolver("input2.txt", false);
+	GrammarSolver solver1 = new GrammarSolver("input.txt", false, int.MaxValue);
+	GrammarSolver solver2 = new GrammarSolver("input2.txt", false, int.MaxValue);
 	CancellationTokenSource cts = new CancellationTokenSource();
 	Task solverTask = Task.Run(() => solver1.MakeWords(cts.Token));
 	Task solverTask2 = Task.Run(() => solver2.MakeWords(cts.Token));

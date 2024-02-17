@@ -8,8 +8,9 @@ public class GrammarSolver
 	public string StartPosition { get; private set; } = "S";
     public Dictionary<string, HashSet<string>> Rules { get; private set; } = new Dictionary<string, HashSet<string>>();
 	public bool PrintLines { get; private set; } = true;
+	public int WordLengthLimit { get; private set; } = int.MaxValue;
 
-    public HashSet<string> ResultWords { get; set; } = new HashSet<string>();
+	public HashSet<string> ResultWords { get; set; } = new HashSet<string>();
     public HashSet<string> CurrWords { get; private set; } = new HashSet<string>();
     public HashSet<string> NextWords { get; private set; } = new HashSet<string>();
 
@@ -22,16 +23,18 @@ public class GrammarSolver
 	#endregion
 
 	#region Конструкторы
-	public GrammarSolver(string startPosition, Dictionary<string, HashSet<string>> rules, bool printLines = true)
+	public GrammarSolver(string startPosition, Dictionary<string, HashSet<string>> rules, bool printLines = true, int wordLengthLimit = int.MaxValue)
     {
         StartPosition = startPosition;
         Rules = rules;
 		PrintLines = printLines;
+		WordLengthLimit = wordLengthLimit;
 	}
 
-    public GrammarSolver(string fileName, bool printLines = true)
+    public GrammarSolver(string fileName, bool printLines = true, int wordLengthLimit = int.MaxValue)
     {
 		PrintLines = printLines;
+		WordLengthLimit = wordLengthLimit;
 
 		string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
 		if (File.Exists(filePath))
@@ -127,7 +130,6 @@ public class GrammarSolver
 		}
 
 		Console.WriteLine("Удалим правила, содержащие непорождающие нетерминалы");
-		Console.ForegroundColor = ConsoleColor.Red;
 		foreach (string key in Rules.Keys)
 		{
 			bool deleted = false;
@@ -147,10 +149,33 @@ public class GrammarSolver
 				{
 					if (!deleted)
 					{
-						Console.Write($"{key}: ");
+						if (nonGenerativeCharacters.Contains(key[0]))
+						{
+							Console.ForegroundColor = ConsoleColor.Red;
+							Console.Write($"{key}: ");
+							Console.ResetColor();
+						}
+						else
+						{
+							Console.Write($"{key}: ");
+						}
 						deleted = true;
 					}
-                    Console.Write($"{value} ");
+
+					foreach (char c in value)
+					{
+						if (nonGenerativeCharacters.Contains(c))
+						{
+							Console.ForegroundColor = ConsoleColor.Red;
+							Console.Write($"{c}");
+							Console.ResetColor();
+						}
+						else
+						{
+							Console.Write($"{c}");
+						}
+					}
+					Console.Write(" ");
                     Rules[key].Remove(value);
 					if (Rules[key].Count == 0)
 					{
@@ -163,7 +188,6 @@ public class GrammarSolver
 				Console.WriteLine();
 			}
 		}
-		Console.ResetColor();
 
 		Console.WriteLine("РЕЗУЛЬТАТ");
 		Console.WriteLine(this);
@@ -309,7 +333,7 @@ public class GrammarSolver
 		else
 		{
 			Console.Write("Эпсилон-порождающие нетерминалы: ");
-			Console.ForegroundColor = ConsoleColor.Green;
+			Console.ForegroundColor = ConsoleColor.Red;
 			foreach (char item in emptyGenerativeCharacters)
 			{
                 Console.Write(item + " ");
@@ -412,7 +436,23 @@ public class GrammarSolver
 					}
 				}
 				if (vals.Count > 0 && added)
-					Console.WriteLine($"(для правила {key} -> {rule})");
+				{
+					Console.Write($"(для правила {key} -> ");
+					foreach (char c in rule)
+					{
+						if (emptyGenerativeCharacters.Contains(c))
+						{
+							Console.ForegroundColor = ConsoleColor.Red;
+							Console.Write(c);
+							Console.ResetColor();
+						}
+						else
+						{
+							Console.Write(c);
+						}
+                    }
+                    Console.WriteLine(")");
+                }
 			}
         }
 
@@ -557,25 +597,55 @@ public class GrammarSolver
 			}
 		}
 
-		Console.WriteLine("Добавим новые правила");
+		bool addedNewRule = false;
 		foreach ((string, char) key in rulesToAdd.Keys)
 		{
 			var values = rulesToAdd[key];
-			Console.ForegroundColor = ConsoleColor.Green;
-			Console.Write($"{key.Item1}: ");
+			bool added = false;
 			foreach (var item in values)
 			{
-				Console.Write(item + " ");
 				if (!Rules.ContainsKey(key.Item1))
 				{
+					if (!addedNewRule)
+					{
+						Console.WriteLine("Добавим новые правила");
+						addedNewRule = true;
+					}
+					if (!added)
+					{
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.Write($"{key.Item1}: ");
+						Console.ResetColor();
+						added = true;
+					}
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.Write(item + " ");
+					Console.ResetColor();
 					Rules[key.Item1] = new HashSet<string>() { item };
 				}
 				else
 				{
-					Rules[key.Item1].Add(item);
+					if (!Rules[key.Item1].Contains(item))
+					{
+						if (!addedNewRule)
+						{
+							Console.WriteLine("Добавим новые правила");
+							addedNewRule = true;
+						}
+						if (!added)
+						{
+							Console.ForegroundColor = ConsoleColor.Green;
+							Console.Write($"{key.Item1}: ");
+							Console.ResetColor();
+							added = true;
+						}
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.Write(item + " ");
+						Console.ResetColor();
+						Rules[key.Item1].Add(item);
+					}
 				}
 			}
-			Console.ResetColor();
 			Console.WriteLine($"(для правила {key.Item1} -> {key.Item2})");
 		}
 
@@ -918,7 +988,12 @@ public class GrammarSolver
 					{
 						foreach (string replaceWith in Rules[ruleString])
 						{
-							NextWords.Add(word.Remove(index, ruleString.Length).Insert(index, replaceWith));
+							string nextWord = word.Remove(index, ruleString.Length).Insert(index, replaceWith);
+							if (nextWord.Length > WordLengthLimit)
+							{
+								continue;
+							}
+							NextWords.Add(nextWord);
 							canReplace = true;
 						}
 					}
@@ -944,6 +1019,7 @@ public class GrammarSolver
 	public void MakeWordsDetailed(CancellationToken cancellationToken)
 	{
 		CurrChains.Add(new List<string>() { StartPosition });
+		CurrWords.Add(StartPosition);
 		while (true)
 		{
 			if (CurrChains.Count == 0)
@@ -964,8 +1040,14 @@ public class GrammarSolver
 					{
 						foreach (string replaceWith in Rules[ruleString])
 						{
+							string nextWord = word.Remove(index, ruleString.Length).Insert(index, replaceWith);
+							if (nextWord.Length > WordLengthLimit || NextWords.Contains(nextWord))
+							{
+								continue;
+							}
+							NextWords.Add(nextWord);
 							List<string> nextChain = new List<string>(chain);
-							nextChain.Add(word.Remove(index, ruleString.Length).Insert(index, replaceWith));
+							nextChain.Add(nextWord);
 							NextChains.Add(nextChain);
 							canReplace = true;
 						}
@@ -990,6 +1072,8 @@ public class GrammarSolver
 
 			CurrChains = new List<List<string>>(NextChains);
 			NextChains = new List<List<string>>();
+			CurrWords = new HashSet<string>(NextWords);
+			NextWords = new HashSet<string>();
 		}
 	}
 
